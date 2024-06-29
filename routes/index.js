@@ -26,11 +26,17 @@ router.post('/register', function(req, res, next) {
   })
 
   userModel.register(data, req.body.password)
-  .then(function(){
-    passport.authenticate("local")(req, res, function(){
+  .then(function(user){
+    req.logIn(user, function(err) {
+      if (err) {
+        return next(err);
+      }
       res.redirect("/profile");
-    })
+    });
   })
+  .catch(function(err) {
+    res.render('register', { error: err.message });
+  });
 });
 
 router.post('/login', passport.authenticate("local", {
@@ -50,7 +56,7 @@ function isLoggedIn(req, res, next){
   if(req.isAuthenticated()){
     return next();
   }
-  res.redirect("/");
+  else{res.redirect("/");};
 }
 
 module.exports = router;
