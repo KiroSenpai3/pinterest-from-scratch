@@ -14,7 +14,7 @@ router.get('/register', function(req, res, next) {
   res.render('register');
 });
 
-router.get('/profile', isLoggedIn, function(req, res, next) {
+router.get('/profile', function(req, res, next) {
   res.render('profile');
 });
 
@@ -26,17 +26,11 @@ router.post('/register', function(req, res, next) {
   })
 
   userModel.register(data, req.body.password)
-  .then(function(user){
-    req.logIn(user, function(err) {
-      if (err) {
-        return next(err);
-      }
+  .then(function(){
+    passport.authenticate("local")(req, res, function(){
       res.redirect("/profile");
-    });
+    })
   })
-  .catch(function(err) {
-    res.render('register', { error: err.message });
-  });
 });
 
 router.post('/login', passport.authenticate("local", {
